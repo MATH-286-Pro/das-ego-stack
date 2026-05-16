@@ -1,18 +1,15 @@
-# das-ego-finger-stack
-DAS Ego &amp; Finger Local Data Acquisition and Processing Stack
+# das-ego-stack
+DAS Ego Local Data Acquisition and Processing Stack
 
 
 ## 1. Prerequisites
 
-- Linux x86_64 (Ubuntu 20.04 / 22.04 or Debian 11 / 12),CPU>=16C,RAM>=32G,GPU(L4 、A100/4090D).**recommended**
+- Linux x86_64 (Ubuntu 20.04 / 22.04 or Debian 11 / 12),CPU>=16C,RAM>=32G.**recommended**
 - Python ≥ 3.9 with `pip` and `venv`
-- Docker CLI on PATH; at least 80 GB free in the docker storage dir
-  (check with `docker info | grep "Docker Root Dir"` → `df -h <that path>`)
+- Docker CLI on PATH;(check with `docker info | grep "Docker Root Dir"` → `df -h <that path>`)
 - AWS CLI v2 with credentials that can read ECR
   (`ecr:GetAuthorizationToken`, `ecr:BatchGetImage`)
-- NVIDIA driver + NVIDIA Container Toolkit[https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html]
-  (`docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi`
-  must succeed)
+
 
 ## 2. Install
 
@@ -41,9 +38,10 @@ aws configure               # set access key / secret / region (e.g. us-east-1)
 ```
 
 > **Heads-up on `sudo`**: AWS and docker credentials are per-user
-> (`~/.aws/`, `~/.docker/`). Run every step below — and `python3 main.py`
-> later — as the **same user**; don't mix sudo and non-sudo, or you'll
-> hit `Unable to locate credentials` / `no basic auth credentials`.
+> (`~/.aws/`, `~/.docker/`). Run every step below — and
+> `delivery-pipeline` later — as the **same user**; don't mix sudo and
+> non-sudo, or you'll hit `Unable to locate credentials` /
+> `no basic auth credentials`.
 
 ```bash
 # Authenticate docker to the ECR registry (token expires in 12 h).
@@ -56,7 +54,7 @@ aws ecr get-login-password --region us-east-1 \
 ```bash
 # Pre-pull all images (optional but recommended — catches
 #     ECR/network/disk problems before the pipeline starts)
-REG=764042516397.dkr.ecr.us-east-1.amazonaws.com/delivery
+REG=764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage
 VER=v1.0.0
 for step in qc merge vio vio_check; do
     docker pull ${REG}:${step}-${VER}
@@ -86,13 +84,14 @@ chmod -R a+rwX "$OUTPUT_DIR"     # pipeline needs to write here
 `a+X` (uppercase) only sets the execute bit on directories and
 already-executable files, so it won't mark every `.mcap` as executable.
 
-## 4. Run
+## 5. Run
 
 ```bash
 export INPUT_DIR=/abs/host/input #INPUT dir
 export OUTPUT_DIR=/abs/host/output #OUTPUT dir
 
 ~/.venv/delivery/bin/delivery-pipeline --variant vio \
+    --ecr-registry 764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage \
     --input-dir "$INPUT_DIR" --output-dir "$OUTPUT_DIR" --continue-on-error
 ```
 
@@ -105,12 +104,12 @@ export OUTPUT_DIR=/abs/host/output #OUTPUT dir
 
 
 
-## 5. Output
+## 6. Output
 
 ```
 $OUTPUT_DIR/<group-uuid>/
 ├── result.json                       # per-step status — check this first on failure
-├── merged_output_ego_vio.mcap        # final vio_check output
+├── merged_output_ego_vio.mcap        # vio step output (topic-augmented)
 └── debug/                            # intermediates; safe to delete after audit
     └── work/
         ├── step_outputs/<step>.json  # per-step stdout/result
@@ -124,7 +123,7 @@ summary: 3/4 groups succeeded
   FAIL ab12cd34 at vio
 ```
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 ### `permission denied while trying to connect to the Docker daemon socket`
 
@@ -148,7 +147,7 @@ Most often a permission problem with `userns-remap` docker daemons
 (`docker info | grep "Docker Root Dir"` → path ends in something like
 `/165536.165536/`). The algo container's uid 0 maps to host uid 165536,
 which can't read your root-owned `0644` mcap files. Re-run the `chmod`
-commands from [§3](#3-lay-out-inputs):
+commands from [§4](#4-lay-out-inputs):
 
 ```bash
 chmod -R a+rX  "$INPUT_DIR"
