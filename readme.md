@@ -69,10 +69,27 @@ The wheel installs a single CLI: `delivery-pipeline`. It is the **host
 orchestrator only** — every algo step still runs in its own container.
 
 
-## 3. Pull the images (AWS ECR)
+## 3. Pull the images
 
-The algo images live on Amazon ECR. You need an AWS account with read
-permission on the registry plus AWS CLI v2 installed and configured.
+Choose **one** of the two options below depending on your network.
+
+### Option A — China mainland (recommended for domestic users)
+
+Images are hosted at `imagepublic.genrobotai.com/genrobot/` — **no login
+required**, just pull directly:
+
+```bash
+REG=imagepublic.genrobotai.com/genrobot/genimage
+VER=v1.0.1
+for step in qc merge vio vio_check pose6d pose6d_check; do
+    docker pull ${REG}:${step}-${VER}
+done
+```
+
+### Option B — Outside China (AWS ECR)
+
+The algo images also live on Amazon ECR. You need an AWS account with
+read permission on the registry plus AWS CLI v2 installed and configured.
 
 ```bash
 # --- Install AWS CLI v2 (Linux x86_64) ---
@@ -155,6 +172,14 @@ mkdir -p "$OUTPUT_DIR"
 chmod -R a+rX  "$INPUT_DIR"
 chmod -R a+rwX "$OUTPUT_DIR"
 
+# --- China mainland ---
+~/.venv/delivery/bin/delivery-pipeline --variant c \
+    --ecr-registry imagepublic.genrobotai.com/genrobot/genimage \
+    --image-version v1.0.1 \
+    --input-dir "$INPUT_DIR" --output-dir "$OUTPUT_DIR" \
+    --continue-on-error
+
+# --- Outside China (AWS ECR) ---
 ~/.venv/delivery/bin/delivery-pipeline --variant c \
     --ecr-registry 764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage \
     --image-version v1.0.1 \
