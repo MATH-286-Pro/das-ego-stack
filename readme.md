@@ -185,14 +185,14 @@ chmod -R a+rwX "$OUTPUT_DIR"
 # --- China mainland ---
 ~/.venv/delivery/bin/delivery-pipeline --variant c \
     --ecr-registry imagepublic.genrobotai.com/genrobot/genimage \
-    --image-version v1.0.1 \
+    --image-version v1.0.3 \
     --input-dir "$INPUT_DIR" --output-dir "$OUTPUT_DIR" \
     --continue-on-error
 
 # --- Outside China (AWS ECR) ---
 ~/.venv/delivery/bin/delivery-pipeline --variant c \
     --ecr-registry 764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage \
-    --image-version v1.0.1 \
+    --image-version v1.0.3 \
     --input-dir "$INPUT_DIR" --output-dir "$OUTPUT_DIR" \
     --continue-on-error
 ```
@@ -246,7 +246,7 @@ Pre-pull list differs accordingly (variant A: 4 images, B: 7).
 | `--variant` | `vio` | One of `vio` / `pose6d` / `c` — selects the step list |
 | `--steps` | from `--variant` | Override the step list (comma-separated subset) |
 | `--ecr-registry` | `…/delivery` | `<registry>/<repo>` prefix; combined with `--image-version` to form `<prefix>:<step>-<version>` |
-| `--image-version` | `v1.0.1` | Tag suffix on each ECR image |
+| `--image-version` | `v1.0.3` | Tag suffix on each ECR image |
 | `--continue-on-error` | off | Keep going to the next group if one fails |
 
 
