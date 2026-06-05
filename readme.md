@@ -1,8 +1,18 @@
 # das-ego-stack
 DAS Ego Local Data Acquisition and Processing Stack
 
+## Update Log
+
+**v1.0.3** (2026-06-05)
+- Update VIO algorithm image, fix VIO hanging issue
+- Update pose6d and pose6d_check images, improve pose6d quality and pass rate
+- Upgrade `delivery_pipeline` wheel to `1.0.3`
+- Upgrade all Docker image versions to `v1.0.3` (public registry & AWS ECR)
+
+---
+
 This repo ships:
-- `delivery_pipeline-1.0.1-py3-none-any.whl` — the **host-side** orchestrator
+- `delivery_pipeline-1.0.3-py3-none-any.whl` — the **host-side** orchestrator
 - `sample_input/` — one complete `master + sub_left + sub_right` group, ready to smoke-test the pipeline end-to-end
 
 Default flow documented below is **variant C**
@@ -62,7 +72,7 @@ Variant A is CPU-only — skip §1.2 if that's all you need.
 
 ```bash
 python3 -m venv ~/.venv/delivery
-~/.venv/delivery/bin/pip install delivery_pipeline-1.0.1-py3-none-any.whl
+~/.venv/delivery/bin/pip install delivery_pipeline-1.0.3-py3-none-any.whl
 ```
 
 The wheel installs a single CLI: `delivery-pipeline`. It is the **host
@@ -80,7 +90,7 @@ required**, just pull directly:
 
 ```bash
 REG=imagepublic.genrobotai.com/genrobot/genimage
-VER=v1.0.1
+VER=v1.0.3
 for step in qc merge vio vio_check pose6d pose6d_check; do
     docker pull ${REG}:${step}-${VER}
 done
@@ -118,7 +128,7 @@ fast on network / ECR / disk issues):
 
 ```bash
 REG=764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage
-VER=v1.0.1
+VER=v1.0.3
 for step in qc merge vio vio_check pose6d pose6d_check; do
     docker pull ${REG}:${step}-${VER}
 done
