@@ -3,16 +3,22 @@ DAS Ego Local Data Acquisition and Processing Stack
 
 ## Update Log
 
-**v1.0.4** (2026-06-26)
-- Update VIO algorithm image, Resolve screen freezing issues and improve timeliness ratio
-- Upgrade all Docker image versions to `v1.0.4` (public registry & AWS ECR)
-- (2026-07-01) Bump `delivery_pipeline` wheel to `1.0.4`. Fixes vio step
-  failing with `no mcap found in vio output dir` on hosts where the docker
+**v1.0.5** (2026-07-03)
+- Update QC algorithm image
+- Update VIO algorithm image (rollback to previous stable base)
+- Upgrade `delivery_pipeline` wheel to `1.0.4`Fixes vio step failing 
+  with `no mcap found in vio output dir` on hosts where the docker
   daemon does not share `/tmp` with the wheel process (e.g., proxied
   `docker.sock` on managed ML dev boxes). The vio promote scratch dir now
   lives under `<output-dir>/work/temp/` so it inherits the identity bind
   the pipeline already places on the work root, instead of relying on
   `/tmp` being cross-namespace shared.
+
+- Upgrade all Docker image versions to `v1.0.5` (public registry & AWS ECR)
+
+**v1.0.4** (2026-06-26)
+- Update VIO algorithm image, Resolve screen freezing issues and improve timeliness ratio
+- Upgrade all Docker image versions to `v1.0.4` (public registry & AWS ECR)
 
 **v1.0.3** (2026-06-05)
 - Update VIO algorithm image, fix VIO hanging issue
@@ -61,7 +67,7 @@ required**, just pull directly:
 
 ```bash
 REG=imagepublic.genrobotai.com/genrobot/genimage
-VER=v1.0.4
+VER=v1.0.5
 for step in qc merge vio vio_check; do
   docker pull ${REG}:${step}-${VER}
 done
@@ -99,7 +105,7 @@ fast on network / ECR / disk issues):
 
 ```bash
 REG=764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage
-VER=v1.0.4
+VER=v1.0.5
 for step in qc merge vio vio_check; do
     docker pull ${REG}:${step}-${VER}
 done
@@ -152,7 +158,7 @@ chmod -R a+rwX "$OUTPUT_DIR"
 
 # --- China mainland ---
 REG=imagepublic.genrobotai.com/genrobot/genimage
-VER=v1.0.4
+VER=v1.0.5
 export ALGO_QC_IMAGE=${REG}:qc-${VER}
 export ALGO_MERGE_IMAGE=${REG}:merge-${VER}
 export ALGO_VIO_IMAGE=${REG}:vio-${VER}
@@ -164,7 +170,7 @@ export ALGO_VIO_CHECK_IMAGE=${REG}:vio_check-${VER}
 
 # --- Outside China (AWS ECR) ---
 REG=764042516397.dkr.ecr.us-east-1.amazonaws.com/genimage
-VER=v1.0.4
+VER=v1.0.5
 export ALGO_QC_IMAGE=${REG}:qc-${VER}
 export ALGO_MERGE_IMAGE=${REG}:merge-${VER}
 export ALGO_VIO_IMAGE=${REG}:vio-${VER}
